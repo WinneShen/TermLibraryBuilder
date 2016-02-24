@@ -399,11 +399,12 @@ public class NLpir {
 
 	/**
 	 * 并发分词，并过滤
-	 * 
 	 * @param sourcePath
+	 * @param resultPath
+	 * @return map of word-wordentiy
 	 * @throws IOException
 	 */
-	public void segmentWordsConcurrently(String sourcePath, String resultPath)
+	public Map<String, WordEntity> segmentWordsConcurrently(String sourcePath)
 			throws IOException {
 		// 1.init all var
 		FileWriter fw = null;
@@ -437,15 +438,33 @@ public class NLpir {
 					&& !(tmpEntry.getKey().matches("[a-zA-Z]*[0-9]+") && wordlength > 5))
 				sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
 		}
+//		// 3.write to file and save
+//		System.out.println("start to write file...");
+//		fw = new FileWriter(resultPath);
+//		for (String word : sortedMap.keySet()) {
+//			fw.write(word + "\t" + sortedMap.get(word).getCount() + "\n");
+//		}
+//		fw.close();
+		return sortedMap;
 
-		// 3.write to file and save
-		System.out.println("start to write file...");
-		fw = new FileWriter(resultPath);
-		for (String word : sortedMap.keySet()) {
-			fw.write(word + "\t" + sortedMap.get(word).getCount() + "\n");
+
+
+	}
+	/**
+	 * 过滤掉词语出现频次小于阈值的词
+	 * @param weMap 传入的weMap必须是按词频从大到小排好序的
+	 * @return
+	 */
+	public Map<String,WordEntity> wordFreqFilter(Map<String,WordEntity> weMap){
+		Map<String,WordEntity> resultMap=new HashMap<String,WordEntity>();
+		for (WordEntity value : weMap.values()) {  
+			if(value.getCount()>MIN_FREQ){
+				resultMap.put(value.getWord(), value);
+			}else{
+				break;
+			}
 		}
-		fw.close();
-
+		return resultMap;
 	}
 
 }
